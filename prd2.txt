@@ -1,0 +1,141 @@
+## **Product Requirements Document: "Golden Ticket" Invitation App**  
+**Version:** 1.1  
+**Date:** April 27, 2024  
+**Author:** tar  
+**Status:** Revised  
+
+---
+
+### **1. Introduction & Vision**
+
+#### 1.1. Problem Statement  
+Managing a private event with a limited and exclusive guest list remains a cumbersome and insecure process. Traditional methods like group chats compromise privacy, while manual RSVP tracking is inefficient. Hosts need a secure, elegant, and automated solution that enhances guest experience while maintaining strict access control.
+
+#### 1.2. Product Vision  
+To deliver a premium, web-based invitation platform that combines **Fortune 500-grade design and reliability** with seamless automation. The app will act as a digital concierge—verifying guest identity, managing RSVPs securely, and delivering sensitive event details (like the full address) **exclusively via WhatsApp Business API** to confirmed attendees, ensuring privacy and a white-glove experience.
+
+---
+
+### **2. Goals & Objectives**
+
+#### 2.1. Business Goals  
+* Create a “wow” factor that reflects luxury, exclusivity, and operational excellence.  
+* Position the app as a best-in-class digital invitation experience comparable to premium consumer brands (e.g., Apple, Net-a-Porter, Soho House).  
+* Demonstrate enterprise-grade integration capabilities via WhatsApp Business API.
+
+#### 2.2. Product Goals  
+* **Security:** Only pre-approved guests can RSVP; location details are never exposed on the web.  
+* **Automation:** Real-time RSVP tracking + automatic, secure delivery of venue address via WhatsApp.  
+* **Premium UX:** A polished, responsive, and emotionally resonant interface that feels bespoke and high-end.
+
+---
+
+### **3. Target Audience & User Personas**  
+*(Unchanged from v1.0 — personas remain valid.)*
+
+---
+
+### **4. Updated User Stories & Features**
+
+#### 4.1. Guest Invitation Flow *(Enhanced)*  
+* **As a guest,** I want to receive a personal, unique link via WhatsApp, so I feel specially invited.  
+* **As a guest,** I want to see my name and event details on a beautifully designed page, reinforcing exclusivity.  
+* **As a guest who confirms attendance,** I want to receive the **exact venue address and directions instantly via WhatsApp**, so I don’t need to remember or screenshot it—and so it’s never publicly visible.
+
+#### 4.2. Host Management Flow *(Enhanced)*  
+* **As a host,** I want confirmed guests to automatically receive the private venue address via WhatsApp, so I don’t have to share it manually or risk leaks.  
+* **As a host,** I want full confidence that only “Attending” guests receive location details—and that this happens reliably and instantly.
+
+---
+
+### **5. Updated Functional Requirements**
+
+#### 5.1. Guest List Database  
+* Unchanged: Google Sheet with columns `Name`, `PhoneNumber`, `Token`, `RSVPStatus`.  
+* **New Requirement:** `PhoneNumber` must be in E.164 format (e.g., +14155552671) to be compatible with WhatsApp Business API.
+
+#### 5.2–5.3. Unique Links & Invitation Page Logic  
+* Unchanged from v1.0.
+
+#### 5.4. RSVP Logic *(Enhanced)*  
+* When a guest clicks **“Attending”**:  
+  1. Backend updates `RSVPStatus = "Attending"` in Google Sheet.  
+  2. Backend triggers a **WhatsApp Business API message** to the guest’s registered phone number.  
+  3. The message includes:  
+     - A warm confirmation note (e.g., “You’re confirmed for Alex’s Golden Hour Cocktail!”)  
+     - The **full venue address**  
+     - Optional: Google Maps link or embedded location (if supported by WhatsApp template)  
+  4. Frontend displays a success screen: *“You’re all set! Check WhatsApp for your private location details.”*  
+* If guest clicks **“Declined”**:  
+  - Standard confirmation shown; **no WhatsApp message sent**.
+
+#### 5.5. Admin Dashboard  
+* Unchanged, but now includes a **“WhatsApp Delivery Status”** column (e.g., “Sent”, “Failed”, “Pending”) for each attending guest.
+
+#### 5.6. WhatsApp Business API Integration  
+* The system must use **Meta’s WhatsApp Business API** (via official partner or Cloud API).  
+* All messages must comply with WhatsApp’s **template messaging policies**.  
+* A pre-approved message template must include:  
+  ```text
+  Hi {{1}}, you're confirmed for {{2}}!  
+  Venue: {{3}}  
+  See you there!  
+  ```  
+* Error handling: If WhatsApp delivery fails (invalid number, opt-out, etc.), log error and notify host via dashboard.
+
+---
+
+### **6. Enhanced Non-Functional Requirements**
+
+#### 6.1. UI/UX – Fortune 500 Premium Standard  
+* **Design System:**  
+  - **Color Palette:** Charcoal (`#1a1a1a`) + Gold (`#d4af37`) + neutral off-whites (`#f8f8f8`, `#eaeaea`).  
+  - **Typography:** Inter (variable font) with refined hierarchy, generous whitespace, and micro-interactions.  
+  - **Imagery:** Optional subtle background textures or gradients (e.g., gold foil, marble) — never distracting.  
+* **Interactions:**  
+  - All transitions use **Framer Motion** or equivalent for buttery-smooth 60fps animations.  
+  - RSVP buttons have tactile feedback (scale + shadow on press).  
+  - Loading states are elegant (e.g., shimmer skeletons, not spinners).  
+* **Responsiveness:**  
+  - Fully adaptive across mobile (primary), tablet, and desktop.  
+  - Mobile-first design with thumb-friendly tap targets (>48px).  
+* **Accessibility:**  
+  - WCAG 2.1 AA compliant (contrast, ARIA labels, keyboard nav).
+
+#### 6.2. Security  
+* **No client-side exposure** of venue address.  
+* WhatsApp messages are the **only channel** for location delivery.  
+* Admin token and WhatsApp credentials stored as **encrypted environment variables**.  
+* Rate limiting on `/invite` and `/rsvp` endpoints to prevent scraping.
+
+#### 6.3. Performance  
+* Core invitation page loads in **< 1.5s** on 3G (via code-splitting, image optimization, CDN).  
+* WhatsApp message delivery within **5 seconds** of RSVP confirmation.  
+* Dashboard refreshes in real-time (via polling or WebSockets).
+
+---
+
+### **7. Updated Assumptions & Dependencies**
+
+* **WhatsApp Business API Access:** Host (or developer) must have access to a verified WhatsApp Business account and pre-approved message templates.  
+* **Google Sheets:** Still used as lightweight backend, but row updates must be atomic to avoid race conditions.  
+* **Phone Numbers:** Host must provide **opt-in confirmed numbers** in E.164 format.  
+* **Hosting:** Serverless functions (Vercel/Netlify) must support secure outbound HTTPS calls to WhatsApp Cloud API.
+
+---
+
+### **8. Future Scope (Still Out of Scope for v1.1)**  
+*(Unchanged from v1.0, except note: WhatsApp integration may enable future features like reminders or calendar links.)*
+
+---
+
+### **9. Success Metrics**  
+* **WhatsApp Delivery Rate:** >95% of “Attending” guests receive location via WhatsApp within 10 seconds.  
+* **Guest Trust:** 0 complaints about location privacy or confusion.  
+* **Host Satisfaction:** Host rates UX as “exceptional” (≥4.8/5 in post-event survey).  
+* **Security:** Zero unauthorized access incidents.  
+* **Performance:** 95th percentile page load < 2s on mobile.
+
+---
+
+This revision elevates the product from a functional MVP to a **luxury-tier digital experience**, leveraging WhatsApp Business API not just as a channel—but as a **secure, trusted, and personal concierge** for high-stakes event logistics.
