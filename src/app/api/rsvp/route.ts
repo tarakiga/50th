@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateRSVPAndDelivery, findGuestByToken } from "@/src/lib/contacts";
 import { sendWhatsAppConfirmation } from "@/src/lib/whatsapp";
-import { getRequiredEnv } from "@/src/lib/env";
 import { RSVPBodySchema } from "@/src/schemas/rsvp";
 
 export async function POST(req: NextRequest) {
@@ -22,14 +21,14 @@ export async function POST(req: NextRequest) {
 
     // attending
     const eventName = process.env.EVENT_NAME || "Golden Hour Cocktail";
-    const venueAddress = getRequiredEnv("VENUE_ADDRESS");
+    const eventDetails = process.env.EVENT_DETAILS || "Thank you for confirming your attendance!";
     const mapsLink = process.env.MAPS_LINK || undefined;
 
     const send = await sendWhatsAppConfirmation({
       to: guest.PhoneNumber,
       guestName: guest.Name,
       eventName,
-      venueAddress,
+      eventDetails,
       mapsLink,
     });
 
