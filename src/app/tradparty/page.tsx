@@ -24,7 +24,6 @@ export default async function TradPartyPage({ searchParams }: { searchParams: { 
     }
 
     const eventName = process.env.TRADPARTY_EVENT_NAME || "Traditional Party / Disco Tech";
-    const eventDetails = (process.env.TRADPARTY_DETAILS || "Details will be shared privately").replace(/\\n/g, '\n');
 
     return (
       <main style={{ 
@@ -69,6 +68,16 @@ export default async function TradPartyPage({ searchParams }: { searchParams: { 
             GOLDEN JUBILEE
           </h2>
           
+          {/* Guest Name */}
+          <h2 style={{ 
+            fontSize: '1.4rem', 
+            margin: '0 0 30px 0',
+            color: 'white',
+            fontWeight: '600'
+          }}>
+            Dear {guest.Name}
+          </h2>
+          
           {/* Invitation Text */}
           <p style={{ 
             fontSize: '1.1rem', 
@@ -92,17 +101,7 @@ export default async function TradPartyPage({ searchParams }: { searchParams: { 
             DENEN IKYA
           </h2>
           
-          {/* Guest Name */}
-          <p style={{ 
-            fontSize: '1rem', 
-            margin: '0 0 25px 0',
-            color: 'white',
-            fontStyle: 'normal'
-          }}>
-            Dear {guest.Name}
-          </p>
-          
-          {/* Event Details */}
+          {/* Privacy Notice */}
           <div style={{ 
             background: 'rgba(245, 221, 117, 0.1)',
             border: '1px solid #f5dd75',
@@ -111,10 +110,13 @@ export default async function TradPartyPage({ searchParams }: { searchParams: { 
             margin: '25px 0',
             fontSize: '1rem',
             lineHeight: '1.8',
-            whiteSpace: 'pre-line',
-            color: 'white'
+            color: 'white',
+            textAlign: 'center'
           }}>
-            {eventDetails}
+            🔒 <strong>Exclusive Event</strong><br/><br/>
+            Full details including venue address, time, and special instructions will be shared privately with confirmed guests only.
+            <br/><br/>
+            Please confirm your attendance to receive complete event information.
           </div>
           
           {/* RSVP Info */}
