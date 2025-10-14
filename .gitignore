@@ -10,3 +10,4 @@ coverage
 *.json
 !package*.json
 !tsconfig*.json
+!contacts/*.json
