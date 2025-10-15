@@ -24,9 +24,16 @@ export default function InviteClient({ token, guestName }: { token: string; gues
         const txt = await resp.text();
         throw new Error(txt || "Request failed");
       }
+      
+      const responseData = await resp.json();
       setStatus("done");
+      
       if (action === "attending") {
-        setMessage("You're all set! Check WhatsApp for your private location details.");
+        if (responseData.message && responseData.message.includes("WhatsApp disabled")) {
+          setMessage("Your RSVP has been recorded! Event details will be shared via WhatsApp closer to the date.");
+        } else {
+          setMessage("You're all set! Check WhatsApp for your private location details.");
+        }
       } else {
         setMessage("Thanks for letting us know.");
       }

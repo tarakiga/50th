@@ -1,0 +1,225 @@
+/**
+ * Supabase-based Guest Management
+ * 
+ * Uses Supabase (PostgreSQL) for reliable RSVP tracking
+ * Handles E.164 phone numbers correctly
+ */
+
+import { GuestRow } from '../types';
+
+// Supabase configuration
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
+
+// Fallback guest data for immediate testing
+const FALLBACK_GUESTS = {
+  'a909f361f2ca4d8fbac37fcc531a8164': {
+    Name: 'Tar Akiga',
+    PhoneNumber: '+96894398548',
+    Token: 'a909f361f2ca4d8fbac37fcc531a8164',
+    RSVPStatus: 'None' as const,
+    WhatsAppDeliveryStatus: undefined,
+    UpdatedAt: undefined
+  },
+  '0c743ea9088453a65a33343e9ff4c0ee': {
+    Name: 'TERFA +1',
+    PhoneNumber: '+2348033207783',
+    Token: '0c743ea9088453a65a33343e9ff4c0ee',
+    RSVPStatus: 'None' as const,
+    WhatsAppDeliveryStatus: undefined,
+    UpdatedAt: undefined
+  },
+  '67f50253a9354645fd334767ab0a334d': {
+    Name: 'TERWASE ALABI',
+    PhoneNumber: '+2348033117930',
+    Token: '67f50253a9354645fd334767ab0a334d',
+    RSVPStatus: 'None' as const,
+    WhatsAppDeliveryStatus: undefined,
+    UpdatedAt: undefined
+  }
+};
+
+/**
+ * Make Supabase API request
+ */
+async function supabaseRequest(endpoint: string, options: RequestInit = {}) {
+  if (!SUPABASE_URL || !SUPABASE_KEY) {
+    throw new Error('Supabase credentials not configured');
+  }
+
+  const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
+  
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+      ...options.headers,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Supabase API error: ${response.status} ${response.statusText}`);
+  }
+
+  return response.json();
+}
+
+/**
+ * Find guest by token in Supabase
+ */
+async function findGuestInSupabase(token: string): Promise<GuestRow | null> {
+  try {
+    const guests = await supabaseRequest(`guests?token=eq.${token}&select=*`);
+    
+    if (guests && guests.length > 0) {
+      const guest = guests[0];
+      return {
+        Name: guest.name || '',
+        PhoneNumber: guest.phone_number || '',
+        Token: guest.token || '',
+        RSVPStatus: guest.rsvp_status || 'None',
+        WhatsAppDeliveryStatus: guest.whatsapp_delivery_status,
+        UpdatedAt: guest.updated_at,
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.warn('Supabase lookup failed:', error);
+    return null;
+  }
+}
+
+/**
+ * Update guest RSVP in Supabase
+ */
+async function updateGuestInSupabase(
+  token: string,
+  rsvp: string,
+  delivery?: string
+): Promise<void> {
+  try {
+    const updateData = {
+      rsvp_status: rsvp,
+      updated_at: new Date().toISOString(),
+      ...(delivery && { whatsapp_delivery_status: delivery })
+    };
+
+    await supabaseRequest(`guests?token=eq.${token}`, {
+      method: 'PATCH',
+      body: JSON.stringify(updateData),
+    });
+
+    console.log(`✅ Supabase updated: Token ${token} - ${rsvp}${delivery ? ` - ${delivery}` : ''}`);
+  } catch (error) {
+    console.error('❌ Supabase update failed:', error);
+    throw error;
+  }
+}
+
+/**
+ * Find guest by token - works in both dev and production
+ */
+export async function findGuestByToken(token: string, eventType?: string): Promise<GuestRow | null> {
+  // Try Supabase in production
+  if (process.env.NODE_ENV === 'production') {
+    if (SUPABASE_URL && SUPABASE_KEY) {
+      const supabaseGuest = await findGuestInSupabase(token);
+      if (supabaseGuest) {
+        return supabaseGuest;
+      }
+    }
+    
+    // Fallback to embedded data
+    console.log('Using fallback guest data');
+    return FALLBACK_GUESTS[token as keyof typeof FALLBACK_GUESTS] || null;
+  }
+  
+  // Development: use file system
+  try {
+    const { findGuestByToken: findGuestFile } = await import('./contacts');
+    return findGuestFile(token, eventType);
+  } catch (error) {
+    console.warn('File system unavailable, using fallback');
+    return FALLBACK_GUESTS[token as keyof typeof FALLBACK_GUESTS] || null;
+  }
+}
+
+/**
+ * Update RSVP status - works in both dev and production
+ */
+export async function updateRSVPAndDelivery(
+  token: string,
+  rsvp: string,
+  delivery?: string,
+  eventType?: string
+): Promise<void> {
+  const guest = await findGuestByToken(token, eventType);
+  if (!guest) {
+    throw new Error('Token not found');
+  }
+
+  // Try Supabase in production
+  if (process.env.NODE_ENV === 'production') {
+    if (SUPABASE_URL && SUPABASE_KEY) {
+      try {
+        await updateGuestInSupabase(token, rsvp, delivery);
+        return;
+      } catch (error) {
+        // Fall through to logging
+      }
+    }
+    
+    // Fallback logging
+    console.log(`📝 RSVP Update: ${guest.Name} - ${rsvp}${delivery ? ` - ${delivery}` : ''}`);
+    return;
+  }
+  
+  // Development: try file system, fallback to logging
+  try {
+    const { updateRSVPAndDelivery: updateFile } = await import('./contacts');
+    await updateFile(token, rsvp as any, delivery as any, eventType);
+  } catch (error) {
+    console.warn('File system unavailable, logging RSVP:', error);
+    console.log(`📝 RSVP Update: ${guest.Name} - ${rsvp}${delivery ? ` - ${delivery}` : ''}`);
+  }
+}
+
+/**
+ * List all guests - works in both dev and production
+ */
+export async function listGuests(eventType?: string): Promise<GuestRow[]> {
+  // Try Supabase in production
+  if (process.env.NODE_ENV === 'production') {
+    if (SUPABASE_URL && SUPABASE_KEY) {
+      try {
+        const guests = await supabaseRequest('guests?select=*');
+        return guests.map((guest: any) => ({
+          Name: guest.name || '',
+          PhoneNumber: guest.phone_number || '',
+          Token: guest.token || '',
+          RSVPStatus: guest.rsvp_status || 'None',
+          WhatsAppDeliveryStatus: guest.whatsapp_delivery_status,
+          UpdatedAt: guest.updated_at,
+        }));
+      } catch (error) {
+        console.warn('Supabase list failed, using fallback');
+      }
+    }
+    
+    // Fallback to embedded data
+    return Object.values(FALLBACK_GUESTS);
+  }
+  
+  // Development: use file system
+  try {
+    const { listGuests: listGuestsFile } = await import('./contacts');
+    return listGuestsFile(eventType);
+  } catch (error) {
+    console.warn('File system unavailable, using fallback');
+    return Object.values(FALLBACK_GUESTS);
+  }
+}

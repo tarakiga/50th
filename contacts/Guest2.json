@@ -966,11 +966,17 @@
     "RSVPStatus": "None"
   },
   {
+    "Name": "Muyiwa ATITEBI",
+    "PhoneNumber": "‪+234 809 184 3210‬",
+    "Token": "",
+    "RSVPStatus": "None"
+  },
+  {
     "Name": "Tar Akiga",
     "PhoneNumber": "+96894398548",
     "Token": "a909f361f2ca4d8fbac37fcc531a8164",
-    "RSVPStatus": "",
-    "WhatsAppDeliveryStatus": "",
-    "UpdatedAt": ""
+    "RSVPStatus": "Attending",
+    "WhatsAppDeliveryStatus": "Sent",
+    "UpdatedAt": "2025-10-15T12:11:16.720Z"
   }
 ]

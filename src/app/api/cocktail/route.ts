@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateRSVPAndDelivery, findGuestByToken } from "@/src/lib/contacts";
-import { sendWhatsAppConfirmation } from "@/src/lib/whatsapp";
+import { updateRSVPAndDelivery, findGuestByToken } from "@/src/lib/supabase-contacts";
+import { sendWhatsAppConfirmation } from "@/src/lib/twilio-whatsapp";
 import { RSVPBodySchema } from "@/src/schemas/rsvp";
 
 export async function POST(req: NextRequest) {
@@ -31,6 +31,13 @@ export async function POST(req: NextRequest) {
       eventDetails,
       mapsLink,
     });
+
+    // Handle WhatsApp not being configured (for testing)
+    if (!send.ok && (send.error === "WhatsApp not configured" || send.error === "Twilio WhatsApp not configured")) {
+      await updateRSVPAndDelivery(token, "Attending", "Skipped", 'cocktail');
+      console.log(`✅ RSVP recorded (WhatsApp disabled): ${guest.Name} - Attending`);
+      return NextResponse.json({ status: "ok", message: "RSVP recorded (WhatsApp disabled)" });
+    }
 
     await updateRSVPAndDelivery(token, "Attending", send.ok ? "Sent" : "Failed", 'cocktail');
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { listGuests } from "@/src/lib/contacts";
+import { listGuests } from "@/src/lib/supabase-contacts";
 
 export async function GET(req: NextRequest) {
   // Direct access - no token validation required
