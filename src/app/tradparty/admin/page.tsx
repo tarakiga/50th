@@ -15,8 +15,20 @@ export default function TradPartyAdminPage() {
         <h1 style={{ color: '#8B4513', textAlign: 'center', margin: '0 0 8px 0' }}>
           🎭 Traditional Party EXCLUSIVE Admin 🎭
         </h1>
+        <div style={{ 
+          textAlign: 'center', 
+          margin: '8px 0', 
+          padding: '8px 16px', 
+          background: '#8B4513', 
+          color: 'white', 
+          borderRadius: 6,
+          border: '2px solid #DAA520',
+          fontWeight: 'bold'
+        }}>
+          🎆 TRADITIONAL ATTIRE EVENT 🎆
+        </div>
         <p style={{ textAlign: 'center', margin: 0, fontStyle: 'italic' }}>
-          Monitor RSVPs for guests invited ONLY to Traditional Party events (39 guests)
+          Monitor RSVPs for guests invited ONLY to Traditional Party events (87 guests)
         </p>
       </div>
       <AdminClient eventType="tradparty" />
