@@ -128,7 +128,7 @@ export default async function CocktailPage({ searchParams }: { searchParams: { t
             textAlign: 'center',
             boxShadow: '0 4px 8px rgba(245, 221, 117, 0.3)'
           }}>
-            🎩 STRICTLY BLACK TIE EVENT 🎩
+            🎩 STRICTLY BLACK TIE EVENT FOR COCKTAIL 🎩
             <div style={{ fontSize: '0.9rem', marginTop: '8px', fontWeight: 'normal' }}>
               Formal evening attire required
             </div>
