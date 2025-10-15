@@ -1,4 +1,4 @@
-import { findGuestByToken } from "@/src/lib/contacts";
+import { findGuestByToken } from "@/src/lib/supabase-contacts";
 import InviteClient from "./InviteClient";
 
 export default async function InvitePage({ searchParams }: { searchParams: { token?: string } }) {
