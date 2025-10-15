@@ -115,6 +115,25 @@ export default async function CocktailPage({ searchParams }: { searchParams: { t
             🎉 VIP ACCESS - ALL THREE EVENTS! 🎉
           </div>
           
+          {/* BLACK TIE Notice */}
+          <div style={{
+            background: '#000000',
+            color: 'white',
+            border: '3px solid #f5dd75',
+            borderRadius: 8,
+            padding: 20,
+            margin: '20px 0',
+            fontSize: '1.1rem',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            boxShadow: '0 4px 8px rgba(245, 221, 117, 0.3)'
+          }}>
+            🎩 STRICTLY BLACK TIE EVENT 🎩
+            <div style={{ fontSize: '0.9rem', marginTop: '8px', fontWeight: 'normal' }}>
+              Formal evening attire required
+            </div>
+          </div>
+          
           {/* Privacy Notice */}
           <div style={{ 
             background: 'rgba(245, 221, 117, 0.1)',

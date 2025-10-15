@@ -156,12 +156,6 @@
     "RSVPStatus": "None"
   },
   {
-    "Name": "OYAJE IDOKO",
-    "PhoneNumber": "+2348128219377",
-    "Token": "bbd95297c88228032bc9ef751e2a9395",
-    "RSVPStatus": "None"
-  },
-  {
     "Name": "CHRIS UMAR SAN",
     "PhoneNumber": "+2348033252351",
     "Token": "855847152f529536566bd4899aba0feb",
@@ -261,12 +255,6 @@
     "Name": "HARRY OKORONKWO (CHP)",
     "PhoneNumber": "+2348031318858",
     "Token": "04ac7c387f4993ed6b1f0e8ce6c9c255",
-    "RSVPStatus": "None"
-  },
-  {
-    "Name": "ABUBAKAR TAFWA BALEWA",
-    "PhoneNumber": "+2348023240319",
-    "Token": "5c1788ce3de92fc9f680b11f04176127",
     "RSVPStatus": "None"
   },
   {
@@ -402,12 +390,6 @@
     "RSVPStatus": "None"
   },
   {
-    "Name": "ANDREW KOHOL",
-    "PhoneNumber": "+2348036290700",
-    "Token": "36364bdb915b9828031d76bbf5bfbc69",
-    "RSVPStatus": "None"
-  },
-  {
     "Name": "ARIYO MAIYE",
     "PhoneNumber": "+2348033115484",
     "Token": "fac46ca760edeb280b4f3ef9b54168d6",
@@ -423,12 +405,6 @@
     "Name": "NASIRU USMAN",
     "PhoneNumber": "+2348033155185",
     "Token": "57da4a933f899d813c502a2be7537d43",
-    "RSVPStatus": "None"
-  },
-  {
-    "Name": "SALIHU MAINA",
-    "PhoneNumber": "+2348033044274",
-    "Token": "0eafe2275a052dc8031bfcfbe537800a",
     "RSVPStatus": "None"
   },
   {
@@ -462,12 +438,6 @@
     "RSVPStatus": "None"
   },
   {
-    "Name": "JOHN DYACAM (DAZ)",
-    "PhoneNumber": "+2347035168779",
-    "Token": "0c58698b7b10be9c07910777c37358f8",
-    "RSVPStatus": "None"
-  },
-  {
     "Name": "OLU KING AWEH",
     "PhoneNumber": "+2347047390400",
     "Token": "5be96b32e14397b3b9e691834800ddd2",
@@ -477,12 +447,6 @@
     "Name": "GEN NANSAK SHAGAYA",
     "PhoneNumber": "+2348033120816",
     "Token": "547b04df9816100446315b2c9a9533c1",
-    "RSVPStatus": "None"
-  },
-  {
-    "Name": "NAZEEF ISA AMED",
-    "PhoneNumber": "+2348037064055",
-    "Token": "f10661669d627dd300bb09947c21cd9e",
     "RSVPStatus": "None"
   },
   {
@@ -537,12 +501,6 @@
     "Name": "DEVAAN JIWUNDE",
     "PhoneNumber": "+2348033143115",
     "Token": "352b1945816002941592715e344baaed",
-    "RSVPStatus": "None"
-  },
-  {
-    "Name": "DAVE OSHI",
-    "PhoneNumber": "+2348033205163",
-    "Token": "fd03b9230a0cea6993b31a2dedcc78c0",
     "RSVPStatus": "None"
   },
   {
@@ -699,12 +657,6 @@
     "Name": "H.E SHEHU DIKKO",
     "PhoneNumber": "+2348033146361",
     "Token": "32052fd0aba91d896aeca24b0fa0f62d",
-    "RSVPStatus": "None"
-  },
-  {
-    "Name": "IBRAHIM DANBATTA",
-    "PhoneNumber": "+2348033138521",
-    "Token": "1911ce7824bc45a120bb8fa5975469c2",
     "RSVPStatus": "None"
   },
   {
@@ -870,21 +822,9 @@
     "RSVPStatus": "None"
   },
   {
-    "Name": "SALIM OLASUPO",
-    "PhoneNumber": "+2348136701915",
-    "Token": "f0c84c00eae376a29e1e063aadddf837",
-    "RSVPStatus": "None"
-  },
-  {
     "Name": "EDIDIONG IDIONG ",
     "PhoneNumber": "+2347035685539",
     "Token": "33f261d6357a052c4b5e7f314dc008bf",
-    "RSVPStatus": "None"
-  },
-  {
-    "Name": "EJIKE EKWENIBE",
-    "PhoneNumber": "+2348033134626",
-    "Token": "fe74774036209fd302787df8439c9874",
     "RSVPStatus": "None"
   },
   {
