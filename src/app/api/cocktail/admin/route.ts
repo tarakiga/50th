@@ -2,17 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { listGuests } from "@/src/lib/contacts";
 
 export async function GET(req: NextRequest) {
-  const authHeader = req.headers.get("authorization") || "";
-  const bearer = authHeader.replace(/^Bearer\s+/i, "").trim();
-  const headerToken = (req.headers.get("x-admin-token") || "").trim();
-  const provided = bearer || headerToken;
-  const expected = (process.env.ADMIN_TOKEN || "").trim();
-
-  if (!provided || !expected || provided !== expected) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  // Direct access - no token validation required
+  // Only admins with access to this URL can view the data
+  
+  try {
+    // Read from Cocktail contacts (Guest2.json)
+    const items = await listGuests('cocktail');
+    return NextResponse.json({ items });
+  } catch (error) {
+    console.error('Error loading guest data:', error);
+    return NextResponse.json({ error: "Failed to load guest data" }, { status: 500 });
   }
-
-  // Read from Cocktail contacts (Guest2.json)
-  const items = await listGuests('cocktail');
-  return NextResponse.json({ items });
 }

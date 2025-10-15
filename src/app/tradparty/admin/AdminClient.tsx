@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 interface Item {
   Name: string;
@@ -12,8 +12,7 @@ interface Item {
 }
 
 export default function AdminClient({ eventType }: { eventType: string }) {
-  const [token, setToken] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [items, setItems] = useState<Item[] | null>(null);
   const [filter, setFilter] = useState<"All" | "Attending" | "Declined" | "None">("All");
@@ -38,10 +37,8 @@ export default function AdminClient({ eventType }: { eventType: string }) {
   async function fetchAdmin() {
     setLoading(true);
     setError(null);
-    setItems(null);
     try {
       const resp = await fetch(`/api/${eventType}/admin`, {
-        headers: { Authorization: `Bearer ${token}` },
         cache: "no-store",
       });
       if (!resp.ok) throw new Error(await resp.text());
@@ -54,34 +51,35 @@ export default function AdminClient({ eventType }: { eventType: string }) {
     }
   }
 
+  // Auto-load data on component mount
+  useEffect(() => {
+    fetchAdmin();
+  }, [eventType]);
+
   return (
     <section style={{ display: "grid", gap: 16 }}>
-      <div style={{ display: "grid", gap: 12 }}>
-        <label style={{ display: "grid", gap: 6 }}>
-          <span>Admin Token</span>
-          <input
-            type="password"
-            placeholder="Paste ADMIN_TOKEN"
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            style={{ maxWidth: 420, padding: 8, borderRadius: 4, border: '1px solid #ccc' }}
-          />
-        </label>
-        <div style={{ display: "flex", gap: 8 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <button 
             onClick={fetchAdmin} 
-            disabled={!token || loading}
+            disabled={loading}
             style={{
               background: '#DAA520',
               color: 'white',
               border: 'none',
               padding: '8px 16px',
               borderRadius: '4px',
-              cursor: !token || loading ? 'not-allowed' : 'pointer'
+              cursor: loading ? 'not-allowed' : 'pointer'
             }}
           >
-            {loading ? "Loading…" : "Load"}
+            {loading ? "Refreshing…" : "Refresh Data"}
           </button>
+          <span style={{ color: '#666', fontSize: '0.9em' }}>
+            Auto-refreshes every page load
+          </span>
+        </div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <label style={{ fontSize: '0.9em', color: '#666' }}>Filter:</label>
           <select 
             value={filter} 
             onChange={(e) => setFilter(e.target.value as any)}
@@ -186,7 +184,7 @@ export default function AdminClient({ eventType }: { eventType: string }) {
         </div>
       )}
 
-      {!items && !loading && !error && (
+      {loading && !items && (
         <div style={{ 
           textAlign: 'center', 
           padding: 40, 
@@ -195,7 +193,7 @@ export default function AdminClient({ eventType }: { eventType: string }) {
           borderRadius: 8,
           border: '1px dashed #ccc'
         }}>
-          <p>No data loaded. Enter your admin token and click Load to view guest RSVPs.</p>
+          <p>Loading guest data...</p>
         </div>
       )}
     </section>
