@@ -29,10 +29,15 @@ export default function InviteClient({ token, guestName }: { token: string; gues
       setStatus("done");
       
       if (action === "attending") {
+        const viaSMS = responseData?.channel === "sms" || (process.env.NEXT_PUBLIC_DETAILS_VIA_SMS === "true");
         if (responseData.message && responseData.message.includes("WhatsApp disabled")) {
-          setMessage("Your RSVP has been recorded! Event details will be shared via WhatsApp closer to the date.");
+          setMessage(viaSMS
+            ? "Your RSVP has been recorded! Event details will be shared via SMS closer to the date."
+            : "Your RSVP has been recorded! Event details will be shared via WhatsApp closer to the date.");
         } else {
-          setMessage("You're all set! Check WhatsApp for your private location details.");
+          setMessage(viaSMS
+            ? "You're all set! Check text messages for your private location details."
+            : "You're all set! Check WhatsApp for your private location details.");
         }
       } else {
         setMessage("Thanks for letting us know.");

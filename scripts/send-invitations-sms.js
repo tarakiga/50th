@@ -18,6 +18,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const BASE_URL = 'https://denens50th.netlify.app';
 const DELAY_BETWEEN_MESSAGES = 1500; // 1.5 seconds
 const DRY_RUN = process.argv.includes('--dry-run');
+const ONLY_ARG = process.argv.find(arg => arg.startsWith('--only='));
+const ONLY_NUMBER = ONLY_ARG ? ONLY_ARG.split('=')[1] : undefined;
 
 // Load environment variables
 import dotenv from 'dotenv';
@@ -201,7 +203,12 @@ async function sendSMSInvitations(contactFile, eventType, provider) {
     return;
   }
 
-  const guests = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  let guests = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+  if (ONLY_NUMBER) {
+    guests = guests.filter(g => (g.PhoneNumber || '').trim() === ONLY_NUMBER.trim());
+    console.log(`   ▶ Filtering by --only: ${ONLY_NUMBER} → ${guests.length} match(es)`);
+  }
   const results = { sent: 0, failed: 0, errors: [] };
   
   console.log(`\n📱 Sending ${eventType} SMS invitations to ${guests.length} guests via ${provider.config.name}...\n`);

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateRSVPAndDelivery, findGuestByToken } from "@/src/lib/supabase-contacts";
 import { sendWhatsAppConfirmation } from "@/src/lib/twilio-whatsapp";
+import { sendSMSDetails } from "@/src/lib/twilio-sms";
 import { RSVPBodySchema } from "@/src/schemas/rsvp";
 
 export async function POST(req: NextRequest) {
@@ -24,16 +25,25 @@ export async function POST(req: NextRequest) {
     const eventDetails = (process.env.TRADPARTY_DETAILS || "Details will be shared privately").replace(/\\n/g, '\n');
     const mapsLink = process.env.TRADPARTY_MAPS_LINK || undefined;
 
-    const send = await sendWhatsAppConfirmation({
-      to: guest.PhoneNumber,
-      guestName: guest.Name,
-      eventName,
-      eventDetails,
-      mapsLink,
-    });
+    const preferSMS = (process.env.DETAILS_VIA_SMS || "false").toLowerCase() === "true";
+    const send = preferSMS
+      ? await sendSMSDetails({
+          to: guest.PhoneNumber,
+          guestName: guest.Name,
+          eventName,
+          eventDetails,
+          mapsLink,
+        })
+      : await sendWhatsAppConfirmation({
+          to: guest.PhoneNumber,
+          guestName: guest.Name,
+          eventName,
+          eventDetails,
+          mapsLink,
+        });
 
     // Handle WhatsApp not being configured (for testing)
-    if (!send.ok && (send.error === "WhatsApp not configured" || send.error === "Twilio WhatsApp not configured")) {
+    if (!send.ok && (send.error === "WhatsApp not configured" || send.error === "Twilio WhatsApp not configured" || send.error === "Twilio SMS not configured")) {
       await updateRSVPAndDelivery(token, "Attending", "Skipped", 'tradparty');
       console.log(`✅ RSVP recorded (WhatsApp disabled): ${guest.Name} - Attending`);
       return NextResponse.json({ status: "ok", message: "RSVP recorded (WhatsApp disabled)" });
@@ -43,7 +53,7 @@ export async function POST(req: NextRequest) {
 
     if (!send.ok) return NextResponse.json({ error: send.error || "send failed" }, { status: 502 });
 
-    return NextResponse.json({ status: "ok" });
+    return NextResponse.json({ status: "ok", channel: preferSMS ? "sms" : "whatsapp" });
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || "Server error" }, { status: 500 });
   }
