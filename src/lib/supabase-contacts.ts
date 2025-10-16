@@ -192,34 +192,60 @@ export async function updateRSVPAndDelivery(
  * List all guests - works in both dev and production
  */
 export async function listGuests(eventType?: string): Promise<GuestRow[]> {
-  // Try Supabase in production
-  if (process.env.NODE_ENV === 'production') {
-    if (SUPABASE_URL && SUPABASE_KEY) {
-      try {
-        const guests = await supabaseRequest('guests?select=*');
-        return guests.map((guest: any) => ({
+  // Always try Supabase first if credentials are available
+  if (SUPABASE_URL && SUPABASE_KEY) {
+    try {
+      const guests = await supabaseRequest('guests?select=*');
+      if (!Array.isArray(guests)) {
+        throw new Error('Invalid response from Supabase');
+      }
+      
+      const mappedGuests = guests
+        .map((guest: any) => ({
           Name: guest.name || '',
           PhoneNumber: guest.phone_number || '',
           Token: guest.token || '',
           RSVPStatus: guest.rsvp_status || 'None',
           WhatsAppDeliveryStatus: guest.whatsapp_delivery_status,
           UpdatedAt: guest.updated_at,
-        }));
-      } catch (error) {
-        console.warn('Supabase list failed, using fallback');
+        }))
+        // Filter by event type if specified
+        .filter((guest: GuestRow) => {
+          if (!eventType) return true;
+          const name = guest.Name.toLowerCase();
+          if (eventType === 'tradparty') {
+            return name.includes('(traditional)');
+          } else if (eventType === 'cocktail') {
+            return name.includes('(cocktail)');
+          }
+          return true;
+        });
+      
+      console.log(`Fetched ${mappedGuests.length} ${eventType} guests from Supabase`);
+      return mappedGuests;
+    } catch (error) {
+      console.error('Supabase list failed:', error);
+      // Only use fallback in development
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn('Using fallback data');
+        return Object.values(FALLBACK_GUESTS);
       }
+      // In production, return empty array instead of fallback
+      return [];
     }
-    
-    // Fallback to embedded data
-    return Object.values(FALLBACK_GUESTS);
   }
   
-  // Development: use file system
-  try {
-    const { listGuests: listGuestsFile } = await import('./contacts');
-    return listGuestsFile(eventType);
-  } catch (error) {
-    console.warn('File system unavailable, using fallback');
-    return Object.values(FALLBACK_GUESTS);
+  // Development: use file system if Supabase not available
+  if (process.env.NODE_ENV !== 'production') {
+    try {
+      const { listGuests: listGuestsFile } = await import('./contacts');
+      return listGuestsFile(eventType);
+    } catch (error) {
+      console.warn('File system unavailable, using fallback');
+      return Object.values(FALLBACK_GUESTS);
+    }
   }
+  
+  // If we get here in production without Supabase, return empty array
+  return [];
 }

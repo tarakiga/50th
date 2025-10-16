@@ -38,14 +38,31 @@ export default function AdminClient({ eventType }: { eventType: string }) {
     setLoading(true);
     setError(null);
     try {
-      const resp = await fetch(`/api/${eventType}/admin`, {
+      const response = await fetch(`/api/${eventType}/admin`, {
         cache: "no-store",
       });
-      if (!resp.ok) throw new Error(await resp.text());
-      const data = (await resp.json()) as { items: Item[] };
-      setItems(data.items || []);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error fetching admin data:", errorText);
+        throw new Error(errorText || "Failed to load admin data");
+      }
+      
+      const result = await response.json();
+      console.log("Admin data fetched:", result);
+      
+      // The API returns { items: [...] }
+      const items = result?.items || [];
+      
+      if (!Array.isArray(items)) {
+        throw new Error("Invalid data format received from server");
+      }
+      
+      setItems(items);
     } catch (e: any) {
+      console.error("Error in fetchAdmin:", e);
       setError(e?.message || "Failed to load admin data");
+      setItems([]);
     } finally {
       setLoading(false);
     }
