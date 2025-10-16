@@ -33,7 +33,8 @@ export async function sendSMSDetails(params: SendParams): Promise<{ ok: boolean;
   const url = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}/Messages.json`;
 
   const formData = new URLSearchParams();
-  formData.append("From", TWILIO_FROM_NUMBER);
+  // Use alphanumeric sender ID for better identification
+  formData.append("From", "Denens50th");
   formData.append("To", to);
   formData.append("Body", message);
 
