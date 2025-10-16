@@ -15,10 +15,10 @@ export default function InviteClient({ token, guestName, eventType }: { token: s
     setStatus(action === "attending" ? "loading-attend" : "loading-decline");
     setMessage("");
     try {
-      const resp = await fetch(`/api/${eventType}`, {
+      const resp = await fetch(`/api/rsvp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token, action })
+        body: JSON.stringify({ token, action, eventType })
       });
       if (!resp.ok) {
         const txt = await resp.text();
@@ -27,21 +27,10 @@ export default function InviteClient({ token, guestName, eventType }: { token: s
       
       const responseData = await resp.json();
       setStatus("done");
-      
-      if (action === "attending") {
-        const viaSMS = responseData?.channel === "sms" || (process.env.NEXT_PUBLIC_DETAILS_VIA_SMS === "true");
-        if (responseData.message && responseData.message.includes("WhatsApp disabled")) {
-          setMessage(viaSMS
-            ? "🍸 Cheers! Your RSVP has been recorded. Event details will be shared via SMS closer to the date."
-            : "🍸 Cheers! Your RSVP has been recorded. Event details will be shared via WhatsApp closer to the date.");
-        } else {
-          setMessage(viaSMS
-            ? "🍸 Cheers! You're all set! Check text messages for your private event details and location information."
-            : "🍸 Cheers! You're all set! Check WhatsApp for your private event details and location information.");
-        }
-      } else {
-        setMessage("Thanks for letting us know. We'll miss you!");
-      }
+      const responseMessage = action === "attending" 
+        ? "Thanks, your attendance has been recorded"
+        : "Thanks for your feedback";
+      setMessage(responseMessage);
     } catch (e: any) {
       setStatus("error");
       setMessage(e?.message || "Something went wrong");
@@ -51,8 +40,26 @@ export default function InviteClient({ token, guestName, eventType }: { token: s
   const disabled = status === "loading-attend" || status === "loading-decline" || status === "done";
 
   return (
-    <section style={{ display: "grid", gap: 12 }}>
-      <div style={{ display: "flex", gap: 12, justifyContent: 'center' }}>
+    <section style={{ display: "grid", gap: 8, maxWidth: '600px', margin: '0 auto' }}>
+      <div style={{ 
+        padding: '12px 16px',
+        background: 'transparent',
+        borderLeft: '3px solid #4682B4',
+      }}>
+        <div style={{ whiteSpace: 'pre-line', lineHeight: '1.5', fontSize: '15px' }}>
+          <strong>Cocktail Party</strong>
+          <br/>When: 23.10.2025 @ 5pm
+          <br/>Where: Barcardi Restaurant and Cafe, Wuse II, Abuja @ 19 Ajesa Street, Wuse II, Abuja
+          <br/><br/><strong>Traditional Party</strong>
+          <br/>When: 24.10.2025 @ 5pm
+          <br/>Where: No.8 Tito Bros Street, Off Jimmy Carter Street, Asokoro, Abuja
+          <br/><br/><strong>Disco Tech</strong>
+          <br/>When: 25.10.2025 @ 7pm
+          <br/>Where: Noon Bar, 45 Gana Street, Maitama Abuja
+        </div>
+      </div>
+      
+      <div style={{ display: "flex", gap: 12, justifyContent: 'center', marginTop: '8px' }}>
         <button 
           onClick={() => handleRSVP("attending")} 
           disabled={disabled} 

@@ -157,35 +157,51 @@ export async function updateRSVPAndDelivery(
   delivery?: string,
   eventType?: string
 ): Promise<void> {
+  // First try Supabase if credentials are available
+  if (SUPABASE_URL && SUPABASE_KEY) {
+    try {
+      // Update both RSVP status and timestamp
+      const now = new Date().toISOString();
+      const updates: Record<string, any> = {
+        rsvp_status: rsvp,
+        updated_at: now
+      };
+      
+      if (delivery) {
+        updates.whatsapp_delivery_status = delivery;
+      }
+      
+      const response = await fetch(`${SUPABASE_URL}/rest/v1/guests?token=eq.${token}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify(updates)
+      });
+      
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Supabase update failed: ${error}`);
+      }
+      
+      console.log(`✅ Updated RSVP in Supabase for token ${token}: ${rsvp}`);
+      return;
+    } catch (error) {
+      console.error('Supabase update error:', error);
+      throw error; // Re-throw to be handled by the caller
+    }
+  }
+  
+  // Fallback for development or if Supabase is not configured
   const guest = await findGuestByToken(token, eventType);
   if (!guest) {
     throw new Error('Token not found');
   }
-
-  // Try Supabase in production
-  if (process.env.NODE_ENV === 'production') {
-    if (SUPABASE_URL && SUPABASE_KEY) {
-      try {
-        await updateGuestInSupabase(token, rsvp, delivery);
-        return;
-      } catch (error) {
-        // Fall through to logging
-      }
-    }
-    
-    // Fallback logging
-    console.log(`📝 RSVP Update: ${guest.Name} - ${rsvp}${delivery ? ` - ${delivery}` : ''}`);
-    return;
-  }
   
-  // Development: try file system, fallback to logging
-  try {
-    const { updateRSVPAndDelivery: updateFile } = await import('./contacts');
-    await updateFile(token, rsvp as any, delivery as any, eventType);
-  } catch (error) {
-    console.warn('File system unavailable, logging RSVP:', error);
-    console.log(`📝 RSVP Update: ${guest.Name} - ${rsvp}${delivery ? ` - ${delivery}` : ''}`);
-  }
+  console.log(`📝 RSVP Update (local): ${guest.Name} - ${rsvp}${delivery ? ` - ${delivery}` : ''}`);
 }
 
 /**

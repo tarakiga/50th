@@ -134,24 +134,6 @@ export default async function CocktailPage({ searchParams }: { searchParams: { t
             </div>
           </div>
           
-          {/* Privacy Notice */}
-          <div style={{ 
-            background: 'rgba(245, 221, 117, 0.1)',
-            border: '1px solid #f5dd75',
-            borderRadius: 8,
-            padding: 25,
-            margin: '25px 0',
-            fontSize: '1rem',
-            lineHeight: '1.8',
-            color: 'white',
-            textAlign: 'center'
-          }}>
-            🔒 <strong>Exclusive VIP Event</strong><br/><br/>
-            Full details including venue address, time, and special instructions will be shared privately with confirmed guests only.
-            <br/><br/>
-            Please confirm your attendance to receive complete event information.
-          </div>
-          
           {/* RSVP Info */}
           <p style={{ 
             fontSize: '0.9rem', 
